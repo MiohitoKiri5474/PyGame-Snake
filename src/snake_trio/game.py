@@ -54,7 +54,7 @@ def step(state: GameState) -> None:
     grow = ate_food(new_head, state.food)
     next_body = advance_body(state.body, new_head, grow)
     self_hit = new_head in next_body[1:]
-    if hit_wall(new_head, WIDTH, HEIGHT, CELL) or self_hit:
+    if hit_wall(new_head, WIDTH, HEIGHT, CELL, HEADER_HEIGHT) or self_hit:
         state.game_over = True
         return
     state.body = next_body

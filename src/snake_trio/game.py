@@ -27,6 +27,13 @@ START_BODY: list[Cell] = [(200, 200), (180, 200), (160, 200)]
 START_DIRECTION: Direction = (1, 0)
 HEADER_HEIGHT = 40
 SPEED = [1, 1.2, 1.3, 1.4, 1.5]
+LEVEL_BACKGROUNDS = [
+    (255, 253, 249),  # Level 1: Original
+    (170, 215, 255),  # Level 2: Ocean
+    (180, 225, 170),  # Level 3: Jungle
+    (245, 220, 150),  # Level 4: Pyramid
+    (255, 200, 225),  # Level 5: Princess
+]
 
 
 def choose_food(body: list[Cell]) -> Cell:
@@ -166,7 +173,8 @@ def run_game() -> int:
             step(state)
             next_step += 130 / SPEED[state.level - 1]
 
-        screen.fill((255, 253, 249))
+        background_color = LEVEL_BACKGROUNDS[state.level - 1]
+        screen.fill(background_color)
 
         # --- Header block: score + level ---
         pygame.draw.rect(screen, (235, 230, 221), (0, 0, WIDTH, HEADER_HEIGHT))

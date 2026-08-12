@@ -32,7 +32,7 @@ def ate_food(head: Cell, food: Cell) -> bool:
     Hint: both values use the same ``(x, y)`` tuple format.
     """
     # TODO 2: replace this line with one boolean return statement.
-    raise NotImplementedError("TODO 2: compare head and food")
+    return head[0] == food[0] and head[1] == food[1]
 
 
 def hit_wall(head: Cell, width: int, height: int, cell_size: int) -> bool:

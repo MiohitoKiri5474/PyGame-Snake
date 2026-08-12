@@ -64,3 +64,10 @@ def advance_body(body: list[Cell], new_head: Cell, grow: bool) -> list[Cell]:
     else:
         # 如果只是正常移動，就把新頭放在最前面，後面接上「扣除最後一節」的原身體
         return [new_head] + body[:-1]
+def shrink_body(body: list[Cell], new_head: Cell) -> list[Cell]:
+    """回傳縮短後的蛇身。"""
+    # 如果蛇身原本只有 1 或 2 格，縮短後就只剩下一顆頭
+    if len(body) <= 2:
+        return [new_head]
+    # 正常移動是去掉 1 節尾巴 ([:-1])，縮短則是去掉 2 節尾巴 ([:-2])
+    return [new_head] + body[:-2]

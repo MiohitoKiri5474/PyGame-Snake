@@ -15,10 +15,10 @@ from .logic import Cell, Direction, advance_body, ate_food, hit_wall, next_head
 WIDTH = 640
 HEIGHT = 480
 CELL = 20
-STEP_MS = 130
 START_BODY: list[Cell] = [(200, 200), (180, 200), (160, 200)]
 START_DIRECTION: Direction = (1, 0)
 HEADER_HEIGHT = 40
+SPEED = [1, 1.2, 1.3, 1.4, 1.5]
 
 
 def choose_food(body: list[Cell]) -> Cell:
@@ -62,6 +62,9 @@ def step(state: GameState) -> None:
         state.score += 1
         state.food = choose_food(state.body)
 
+    if state.score % 10 == 0 and state.score != 0:
+        state.level = min(state.level + 1, len(SPEED))
+
 
 def run_game() -> int:
     try:
@@ -76,7 +79,7 @@ def run_game() -> int:
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 32)
     state = new_game()
-    next_step = pygame.time.get_ticks() + STEP_MS
+    next_step = pygame.time.get_ticks() + 130 / SPEED[state.level - 1]
     running = True
 
     key_directions = {
@@ -97,7 +100,7 @@ def run_game() -> int:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     state = new_game()
-                    next_step = pygame.time.get_ticks() + STEP_MS
+                    next_step = pygame.time.get_ticks() + 130 / SPEED[state.level - 1]
                 elif event.key in key_directions and not state.game_over:
                     candidate = key_directions[event.key]
                     if candidate != (-state.direction[0], -state.direction[1]):
@@ -106,7 +109,7 @@ def run_game() -> int:
         now = pygame.time.get_ticks()
         if not state.game_over and now >= next_step:
             step(state)
-            next_step += STEP_MS
+            next_step += 130 / SPEED[state.level - 1]
 
         screen.fill((255, 253, 249))
 

@@ -5,8 +5,7 @@ different direction, an exact board edge, growth by one segment, and proof that
 the original body list is unchanged.
 """
 
-from snake_trio.game import choose_food
-from snake_trio.logic import advance_body, ate_food, hit_wall, next_head
+from snake_trio.logic import ate_food, hit_wall, next_head
 
 # def test_replace_with_a_meaningful_name() -> None:
 #     # Arrange: create the smallest state that proves one contract rule.
@@ -32,12 +31,12 @@ def test_ate_food() -> None:
 
 
 def test_hit_wall() -> None:
-    assert hit_wall((0, 0), 640, 480, 20) is False
-    assert hit_wall((100, 100), 640, 480, 20) is False
-    assert hit_wall((620, 0), 640, 480, 20) is False
-    assert hit_wall((0, 460), 640, 480, 20) is False
+    assert hit_wall((0, 0), 640, 480, 20, 0) is False
+    assert hit_wall((100, 100), 640, 480, 20, 0) is False
+    assert hit_wall((620, 0), 640, 480, 20, 0) is False
+    assert hit_wall((0, 460), 640, 480, 20, 0) is False
 
-    assert hit_wall((640, 100), 640, 480, 20) is True
-    assert hit_wall((100, 480), 640, 480, 20) is True
-    assert hit_wall((-20, 100), 640, 480, 20) is True
-    assert hit_wall((100, -20), 640, 480, 20) is True
+    assert hit_wall((640, 100), 640, 480, 20, 0) is True
+    assert hit_wall((100, 480), 640, 480, 20, 0) is True
+    assert hit_wall((-20, 100), 640, 480, 20, 0) is True
+    assert hit_wall((100, -20), 640, 480, 20, 0) is True

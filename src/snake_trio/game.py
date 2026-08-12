@@ -73,10 +73,14 @@ def run_game() -> int:
     running = True
 
     key_directions = {
-        pygame.K_LEFT: (-1, 0), pygame.K_a: (-1, 0),
-        pygame.K_RIGHT: (1, 0), pygame.K_d: (1, 0),
-        pygame.K_UP: (0, -1), pygame.K_w: (0, -1),
-        pygame.K_DOWN: (0, 1), pygame.K_s: (0, 1),
+        pygame.K_LEFT: (-1, 0),
+        pygame.K_a: (-1, 0),
+        pygame.K_RIGHT: (1, 0),
+        pygame.K_d: (1, 0),
+        pygame.K_UP: (0, -1),
+        pygame.K_w: (0, -1),
+        pygame.K_DOWN: (0, 1),
+        pygame.K_s: (0, 1),
     }
 
     while running:
@@ -104,9 +108,13 @@ def run_game() -> int:
             pygame.draw.line(screen, (226, 218, 207), (0, y), (WIDTH, y))
         for index, (x, y) in enumerate(state.body):
             color = (39, 118, 91) if index == 0 else (94, 153, 93)
-            pygame.draw.rect(screen, color, (x + 1, y + 1, CELL - 2, CELL - 2), border_radius=5)
+            pygame.draw.rect(
+                screen, color, (x + 1, y + 1, CELL - 2, CELL - 2), border_radius=5
+            )
         fx, fy = state.food
-        pygame.draw.circle(screen, (220, 92, 72), (fx + CELL // 2, fy + CELL // 2), CELL // 2 - 2)
+        pygame.draw.circle(
+            screen, (220, 92, 72), (fx + CELL // 2, fy + CELL // 2), CELL // 2 - 2
+        )
         message = f"Score {state.score}"
         if state.game_over:
             message += "  |  Game over - press R to restart"
@@ -120,7 +128,9 @@ def run_game() -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--check", action="store_true", help="run one deterministic logic step")
+    parser.add_argument(
+        "--check", action="store_true", help="run one deterministic logic step"
+    )
     args = parser.parse_args(argv)
     if args.check:
         state = new_game()

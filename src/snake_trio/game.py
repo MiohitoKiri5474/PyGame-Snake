@@ -52,9 +52,9 @@ def choose_food(body: list[Cell]) -> Cell:
             random.randint(
                 HEADER_HEIGHT // CELL - 1, (HEIGHT + HEADER_HEIGHT) // CELL - 1
             )
-            * CELL
-            + HEADER_HEIGHT
-        )
+            - 1
+        ) * CELL + HEADER_HEIGHT
+    print(x, y)
     return (x, y)
 
 
@@ -182,8 +182,8 @@ def run_game() -> int:
             step(state)
             next_step += 130 / SPEED[state.level - 1]
 
-        background_color = LEVEL_BACKGROUNDS[state.level - 1]
-        screen.fill(background_color)
+            background_color = LEVEL_BACKGROUNDS[state.level - 1]
+            screen.fill(background_color)
 
         # --- Header block: score + level ---
         pygame.draw.rect(screen, (235, 230, 221), (0, 0, WIDTH, HEADER_HEIGHT))

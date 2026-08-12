@@ -116,6 +116,7 @@ def run_game() -> int:
             screen, (226, 218, 207), (0, HEADER_HEIGHT), (WIDTH, HEADER_HEIGHT)
         )
         header_text = f"Score {state.score} | Level {state.level}"
+        screen.blit(font.render(header_text, True, (66, 10, 21)), (12, 8))
 
         # --- Game field (shifted down by HEADER_HEIGHT) ---
         for x in range(0, WIDTH, CELL):

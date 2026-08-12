@@ -10,7 +10,15 @@ import argparse
 import random
 from dataclasses import dataclass
 
-from .logic import Cell, Direction, advance_body, ate_food, hit_wall, next_head , shrink_body
+from .logic import (
+    Cell,
+    Direction,
+    advance_body,
+    ate_food,
+    hit_wall,
+    next_head,
+    shrink_body,
+)
 
 WIDTH = 640
 HEIGHT = 480
@@ -54,10 +62,10 @@ def new_game() -> GameState:
 def step(state: GameState) -> None:
     # 1. 算出新的頭部位置
     new_head = next_head(state.body[0], state.direction, CELL)
-    
+
     # 2. 檢查是否吃到「正常食物」
     grow = ate_food(new_head, state.food)
-    
+
     # --- 【新增區塊開始】 ---
     # 3. 檢查是否吃到「毒蘋果」
     ate_bad = False
@@ -65,8 +73,8 @@ def step(state: GameState) -> None:
     if state.bad_food is not None and ate_food(new_head, state.bad_food):
         ate_bad = True
         state.score = max(0, state.score - 1)  # 扣 1 分 (用 max 確保不會扣到負分)
-        state.bad_food = None                  # 吃掉後毒蘋果就消失
-        
+        state.bad_food = None  # 吃掉後毒蘋果就消失
+
     # 4. 決定下一個身體的狀態
     if ate_bad:
         # 如果吃到毒蘋果，呼叫縮短邏輯
@@ -81,10 +89,10 @@ def step(state: GameState) -> None:
     if hit_wall(new_head, WIDTH, HEIGHT, CELL, HEADER_HEIGHT) or self_hit:
         state.game_over = True
         return
-        
+
     # 6. 正式更新蛇身
     state.body = next_body
-    
+
     # 7. 如果吃到正常食物，加分並產生新食物
     if grow:
         state.score += 1
@@ -140,13 +148,16 @@ def run_game() -> int:
             # 如果畫面上沒有毒蘋果，有小機率生成 (或者使用固定計時器)
             if state.bad_food is None:
                 import random
+
                 # 這裡設定一個機率，每偵測一次有很小的機率生成
-                if random.random() < 0.005: 
+                if random.random() < 0.005:
                     try:
                         state.bad_food = choose_food(state.body + [state.food])
-                        state.bad_food_expire_time = now + 20000 # 20秒 (20000毫秒) 後消失
+                        state.bad_food_expire_time = (
+                            now + 20000
+                        )  # 20秒 (20000毫秒) 後消失
                     except RuntimeError:
-                        pass # 版面滿了就不生成
+                        pass  # 版面滿了就不生成
             else:
                 # 檢查毒蘋果是否過期
                 if now >= state.bad_food_expire_time:
@@ -193,13 +204,13 @@ def run_game() -> int:
                 font.render(over_text, True, (66, 10, 21)),
                 (12, HEADER_HEIGHT + 10),
             )
-        screen.blit(font.render(message, True, (66, 10, 21)), (12, 10))
         if state.bad_food:
             bx, by = state.bad_food
-            pygame.draw.circle(screen, (138, 43, 226), (bx + CELL // 2, by + CELL // 2), CELL // 2 - 2)
+            pygame.draw.circle(
+                screen, (138, 43, 226), (bx + CELL // 2, by + CELL // 2), CELL // 2 - 2
+            )
         pygame.display.flip()
         clock.tick(60)
-        
 
     pygame.quit()
     return 0

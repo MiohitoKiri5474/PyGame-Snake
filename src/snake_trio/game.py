@@ -42,10 +42,18 @@ def choose_food(body: list[Cell]) -> Cell:
         raise RuntimeError("board is full")
 
     x = random.randint(0, WIDTH // CELL - 1) * CELL
-    y = random.randint(HEADER_HEIGHT, (HEIGHT + HEADER_HEIGHT) // CELL - 1) * CELL
+    y = (
+        random.randint(HEADER_HEIGHT // CELL - 1, (HEIGHT + HEADER_HEIGHT) // CELL - 1)
+        * CELL
+    )
     while (x, y) in body:
         x = random.randint(0, WIDTH // CELL - 1) * CELL
-        y = random.randint(HEADER_HEIGHT, (HEIGHT + HEADER_HEIGHT) // CELL - 1) * CELL
+        y = (
+            random.randint(
+                HEADER_HEIGHT // CELL - 1, (HEIGHT + HEADER_HEIGHT) // CELL - 1
+            )
+            * CELL
+        )
     return (x, y)
 
 

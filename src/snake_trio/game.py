@@ -44,6 +44,7 @@ def choose_food(body: list[Cell]) -> Cell:
     y = (
         random.randint(HEADER_HEIGHT // CELL - 1, (HEIGHT + HEADER_HEIGHT) // CELL - 1)
         * CELL
+        + HEADER_HEIGHT
     )
     while (x, y) in body:
         x = random.randint(0, WIDTH // CELL - 1) * CELL
@@ -52,6 +53,7 @@ def choose_food(body: list[Cell]) -> Cell:
                 HEADER_HEIGHT // CELL - 1, (HEIGHT + HEADER_HEIGHT) // CELL - 1
             )
             * CELL
+            + HEADER_HEIGHT
         )
     return (x, y)
 

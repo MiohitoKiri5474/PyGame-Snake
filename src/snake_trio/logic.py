@@ -49,7 +49,7 @@ def hit_wall(head: Cell, width: int, height: int, cell_size: int) -> bool:
     else:
         return False
     
-    raise NotImplementedError("TODO 3: check four wall boundaries")
+    #raise NotImplementedError("TODO 3: check four wall boundaries")
 
 
 def advance_body(body: list[Cell], new_head: Cell, grow: bool) -> list[Cell]:

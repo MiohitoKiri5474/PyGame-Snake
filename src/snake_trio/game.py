@@ -7,6 +7,7 @@ It translates keys, draws the board, and calls the four functions in logic.py.
 from __future__ import annotations
 
 import argparse
+import random
 from dataclasses import dataclass
 
 from .logic import Cell, Direction, advance_body, ate_food, hit_wall, next_head
@@ -21,11 +22,15 @@ START_DIRECTION: Direction = (1, 0)
 
 def choose_food(body: list[Cell]) -> Cell:
     """Choose the first free cell deterministically for reproducible play."""
-    for y in range(0, HEIGHT, CELL):
-        for x in range(0, WIDTH, CELL):
-            if (x, y) not in body:
-                return (x, y)
-    raise RuntimeError("board is full")
+    if len(body) >= (WIDTH // CELL) * (HEIGHT // CELL):
+        raise RuntimeError("board is full")
+
+    x = random.randint(0, WIDTH // CELL - 1) * CELL
+    y = random.randint(0, HEIGHT // CELL - 1) * CELL
+    while (x, y) in body:
+        x = random.randint(0, WIDTH // CELL - 1) * CELL
+        y = random.randint(0, HEIGHT // CELL - 1) * CELL
+    return (x, y)
 
 
 @dataclass
@@ -64,7 +69,7 @@ def run_game() -> int:
         return 2
 
     pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    screen = pygame.display.set_mode((WIDTH, HEIGHT + HEADER_HEIGHT))
     pygame.display.set_caption("NCKU Snake Trio Studio")
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 32)

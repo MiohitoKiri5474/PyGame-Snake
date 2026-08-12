@@ -7,12 +7,11 @@ the original body list is unchanged.
 
 from snake_trio.logic import advance_body, ate_food, hit_wall, next_head
 
-
-def test_replace_with_a_meaningful_name() -> None:
-    # Arrange: create the smallest state that proves one contract rule.
-    # Act: call exactly one public function.
-    # Assert: compare an observable result with your written expectation.
-    raise NotImplementedError("Replace this scaffold with the trio's first test")
+# def test_replace_with_a_meaningful_name() -> None:
+#     # Arrange: create the smallest state that proves one contract rule.
+#     # Act: call exactly one public function.
+#     # Assert: compare an observable result with your written expectation.
+#     raise NotImplementedError("Replace this scaffold with the trio's first test")
 
 
 def test_range_of_head_positions() -> None:
@@ -24,3 +23,8 @@ def test_range_of_head_positions() -> None:
     assert next_head((60, 60), (-1, 0), 20) == (40, 60)
     assert next_head((60, 60), (0, 1), 20) == (60, 80)
     assert next_head((60, 60), (0, -1), 20) == (60, 40)
+
+
+def test_ate_food() -> None:
+    assert ate_food((20, 40), (20, 40)) is True
+    assert ate_food((60, 20), (20, 20)) is False

@@ -44,10 +44,9 @@ def hit_wall(head: Cell, width: int, height: int, cell_size: int) -> bool:
     """
     # TODO 3: check left, right, top, and bottom boundaries.
 
-    if head[0] < 0 or head[0] >= width or head[1] < 0 or head[1] >= height:
-        return True
-    else:
-        return False
+
+    return (head[0] < 0 or head[0] >= width or head[1] < 0 or head[1] >= height)
+
     
     #raise NotImplementedError("TODO 3: check four wall boundaries")
 

@@ -18,6 +18,7 @@ CELL = 20
 STEP_MS = 130
 START_BODY: list[Cell] = [(200, 200), (180, 200), (160, 200)]
 START_DIRECTION: Direction = (1, 0)
+HEADER_HEIGHT = 40
 
 
 def choose_food(body: list[Cell]) -> Cell:
@@ -39,6 +40,7 @@ class GameState:
     direction: Direction
     food: Cell
     score: int = 0
+    level: int = 1
     game_over: bool = False
 
 
@@ -52,7 +54,7 @@ def step(state: GameState) -> None:
     grow = ate_food(new_head, state.food)
     next_body = advance_body(state.body, new_head, grow)
     self_hit = new_head in next_body[1:]
-    if hit_wall(new_head, WIDTH, HEIGHT, CELL) or self_hit:
+    if hit_wall(new_head, WIDTH, HEIGHT, CELL, HEADER_HEIGHT) or self_hit:
         state.game_over = True
         return
     state.body = next_body
@@ -107,10 +109,27 @@ def run_game() -> int:
             next_step += STEP_MS
 
         screen.fill((255, 253, 249))
+
+        # --- Header block: score + level ---
+        pygame.draw.rect(screen, (235, 230, 221), (0, 0, WIDTH, HEADER_HEIGHT))
+        pygame.draw.line(
+            screen, (226, 218, 207), (0, HEADER_HEIGHT), (WIDTH, HEADER_HEIGHT)
+        )
+        header_text = f"Score {state.score} | Level {state.level}"
+        screen.blit(font.render(header_text, True, (66, 10, 21)), (12, 8))
+
+        # --- Game field (shifted down by HEADER_HEIGHT) ---
         for x in range(0, WIDTH, CELL):
-            pygame.draw.line(screen, (226, 218, 207), (x, 0), (x, HEIGHT))
+            pygame.draw.line(
+                screen, (226, 218, 207), (x, HEADER_HEIGHT), (x, HEADER_HEIGHT + HEIGHT)
+            )
         for y in range(0, HEIGHT, CELL):
-            pygame.draw.line(screen, (226, 218, 207), (0, y), (WIDTH, y))
+            pygame.draw.line(
+                screen,
+                (226, 218, 207),
+                (0, HEADER_HEIGHT + y),
+                (WIDTH, HEADER_HEIGHT + y),
+            )
         for index, (x, y) in enumerate(state.body):
             color = (39, 118, 91) if index == 0 else (94, 153, 93)
             pygame.draw.rect(
@@ -120,10 +139,13 @@ def run_game() -> int:
         pygame.draw.circle(
             screen, (220, 92, 72), (fx + CELL // 2, fy + CELL // 2), CELL // 2 - 2
         )
-        message = f"Score {state.score}"
+
         if state.game_over:
-            message += "  |  Game over - press R to restart"
-        screen.blit(font.render(message, True, (66, 10, 21)), (12, 10))
+            over_text = "Game over - press R to restart"
+            screen.blit(
+                font.render(over_text, True, (66, 10, 21)),
+                (12, HEADER_HEIGHT + 10),
+            )
         pygame.display.flip()
         clock.tick(60)
 

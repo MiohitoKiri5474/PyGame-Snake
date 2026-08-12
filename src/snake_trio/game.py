@@ -7,6 +7,7 @@ It translates keys, draws the board, and calls the four functions in logic.py.
 from __future__ import annotations
 
 import argparse
+import random
 from dataclasses import dataclass
 
 from .logic import Cell, Direction, advance_body, ate_food, hit_wall, next_head
@@ -21,11 +22,15 @@ START_DIRECTION: Direction = (1, 0)
 
 def choose_food(body: list[Cell]) -> Cell:
     """Choose the first free cell deterministically for reproducible play."""
-    for y in range(0, HEIGHT, CELL):
-        for x in range(0, WIDTH, CELL):
-            if (x, y) not in body:
-                return (x, y)
-    raise RuntimeError("board is full")
+    if len(body) >= (WIDTH // CELL) * (HEIGHT // CELL):
+        raise RuntimeError("board is full")
+
+    x = random.randint(0, WIDTH // CELL - 1) * CELL
+    y = random.randint(0, HEIGHT // CELL - 1) * CELL
+    while (x, y) in body:
+        x = random.randint(0, WIDTH // CELL - 1) * CELL
+        y = random.randint(0, HEIGHT // CELL - 1) * CELL
+    return (x, y)
 
 
 @dataclass
@@ -64,7 +69,7 @@ def run_game() -> int:
         return 2
 
     pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    screen = pygame.display.set_mode((WIDTH, HEIGHT + HEADER_HEIGHT))
     pygame.display.set_caption("NCKU Snake Trio Studio")
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 32)
@@ -73,10 +78,14 @@ def run_game() -> int:
     running = True
 
     key_directions = {
-        pygame.K_LEFT: (-1, 0), pygame.K_a: (-1, 0),
-        pygame.K_RIGHT: (1, 0), pygame.K_d: (1, 0),
-        pygame.K_UP: (0, -1), pygame.K_w: (0, -1),
-        pygame.K_DOWN: (0, 1), pygame.K_s: (0, 1),
+        pygame.K_LEFT: (-1, 0),
+        pygame.K_a: (-1, 0),
+        pygame.K_RIGHT: (1, 0),
+        pygame.K_d: (1, 0),
+        pygame.K_UP: (0, -1),
+        pygame.K_w: (0, -1),
+        pygame.K_DOWN: (0, 1),
+        pygame.K_s: (0, 1),
     }
 
     while running:
@@ -104,9 +113,13 @@ def run_game() -> int:
             pygame.draw.line(screen, (226, 218, 207), (0, y), (WIDTH, y))
         for index, (x, y) in enumerate(state.body):
             color = (39, 118, 91) if index == 0 else (94, 153, 93)
-            pygame.draw.rect(screen, color, (x + 1, y + 1, CELL - 2, CELL - 2), border_radius=5)
+            pygame.draw.rect(
+                screen, color, (x + 1, y + 1, CELL - 2, CELL - 2), border_radius=5
+            )
         fx, fy = state.food
-        pygame.draw.circle(screen, (220, 92, 72), (fx + CELL // 2, fy + CELL // 2), CELL // 2 - 2)
+        pygame.draw.circle(
+            screen, (220, 92, 72), (fx + CELL // 2, fy + CELL // 2), CELL // 2 - 2
+        )
         message = f"Score {state.score}"
         if state.game_over:
             message += "  |  Game over - press R to restart"
@@ -120,7 +133,9 @@ def run_game() -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--check", action="store_true", help="run one deterministic logic step")
+    parser.add_argument(
+        "--check", action="store_true", help="run one deterministic logic step"
+    )
     args = parser.parse_args(argv)
     if args.check:
         state = new_game()

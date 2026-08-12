@@ -6,19 +6,19 @@ Complete this table together **before anyone edits Python**. Every member signs 
 
 | Item | Trio decision |
 |---|---|
-| Team name | |
-| Member 1 | |
+| Team name | Group 2 |
+| Member 1 | 林冠圻 |
 | Member 2 | |
 | Member 3 | |
-| GitHub repository URL | |
-| Communication channel | |
+| GitHub repository URL | https://github.com/MiohitoKiri5474/PyGame-Snake |
+| Communication channel | Line Chat Group |
 | Normal response time | |
 
 ## How we will work
 
 | Contract question | Our explicit agreement |
 |---|---|
-| When and where will we work together? | |
+| When and where will we work together? | ASAP |
 | How often will Driver, Navigator, and Tester/Recorder rotate? | After every completed TODO, unless we write another rule here: |
 | What must happen before a branch is merged? | At least one peer review and green public tests. Additional rule: |
 | How will we name branches and commits? | `todo-1-next-head`, `todo-2-food`, `todo-3-wall`, `todo-4-body`, `tests-and-debug`; truthful commit messages. Additional rule: |

@@ -10,7 +10,7 @@ import argparse
 import random
 from dataclasses import dataclass
 
-from .logic import Cell, Direction, advance_body, ate_food, hit_wall, next_head
+from .logic import Cell, Direction, advance_body, ate_food, hit_wall, next_head , shrink_body
 
 WIDTH = 640
 HEIGHT = 480
@@ -42,6 +42,8 @@ class GameState:
     score: int = 0
     level: int = 1
     game_over: bool = False
+    bad_food: Cell | None = None
+    bad_food_expire_time: int = 0
 
 
 def new_game() -> GameState:
@@ -50,14 +52,40 @@ def new_game() -> GameState:
 
 
 def step(state: GameState) -> None:
+    # 1. 算出新的頭部位置
     new_head = next_head(state.body[0], state.direction, CELL)
+    
+    # 2. 檢查是否吃到「正常食物」
     grow = ate_food(new_head, state.food)
-    next_body = advance_body(state.body, new_head, grow)
+    
+    # --- 【新增區塊開始】 ---
+    # 3. 檢查是否吃到「毒蘋果」
+    ate_bad = False
+    # 確認畫面上目前有毒蘋果，且蛇頭碰到了它
+    if state.bad_food is not None and ate_food(new_head, state.bad_food):
+        ate_bad = True
+        state.score = max(0, state.score - 1)  # 扣 1 分 (用 max 確保不會扣到負分)
+        state.bad_food = None                  # 吃掉後毒蘋果就消失
+        
+    # 4. 決定下一個身體的狀態
+    if ate_bad:
+        # 如果吃到毒蘋果，呼叫縮短邏輯
+        next_body = shrink_body(state.body, new_head)
+    else:
+        # 否則，按照原本的邏輯正常移動或長大
+        next_body = advance_body(state.body, new_head, grow)
+    # --- 【新增區塊結束】 ---
+
+    # 5. 檢查碰撞 (撞牆或撞到自己)
     self_hit = new_head in next_body[1:]
     if hit_wall(new_head, WIDTH, HEIGHT, CELL, HEADER_HEIGHT) or self_hit:
         state.game_over = True
         return
+        
+    # 6. 正式更新蛇身
     state.body = next_body
+    
+    # 7. 如果吃到正常食物，加分並產生新食物
     if grow:
         state.score += 1
         state.food = choose_food(state.body)
@@ -107,6 +135,22 @@ def run_game() -> int:
                         state.direction = candidate
 
         now = pygame.time.get_ticks()
+        # 【新增】毒蘋果生成與消失邏輯
+        if not state.game_over:
+            # 如果畫面上沒有毒蘋果，有小機率生成 (或者使用固定計時器)
+            if state.bad_food is None:
+                import random
+                # 這裡設定一個機率，每偵測一次有很小的機率生成
+                if random.random() < 0.005: 
+                    try:
+                        state.bad_food = choose_food(state.body + [state.food])
+                        state.bad_food_expire_time = now + 20000 # 20秒 (20000毫秒) 後消失
+                    except RuntimeError:
+                        pass # 版面滿了就不生成
+            else:
+                # 檢查毒蘋果是否過期
+                if now >= state.bad_food_expire_time:
+                    state.bad_food = None
         if not state.game_over and now >= next_step:
             step(state)
             next_step += 130 / SPEED[state.level - 1]
@@ -149,8 +193,13 @@ def run_game() -> int:
                 font.render(over_text, True, (66, 10, 21)),
                 (12, HEADER_HEIGHT + 10),
             )
+        screen.blit(font.render(message, True, (66, 10, 21)), (12, 10))
+        if state.bad_food:
+            bx, by = state.bad_food
+            pygame.draw.circle(screen, (138, 43, 226), (bx + CELL // 2, by + CELL // 2), CELL // 2 - 2)
         pygame.display.flip()
         clock.tick(60)
+        
 
     pygame.quit()
     return 0

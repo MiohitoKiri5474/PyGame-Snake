@@ -5,6 +5,7 @@ different direction, an exact board edge, growth by one segment, and proof that
 the original body list is unchanged.
 """
 
+from snake_trio.game import choose_food
 from snake_trio.logic import advance_body, ate_food, hit_wall, next_head
 
 # def test_replace_with_a_meaningful_name() -> None:

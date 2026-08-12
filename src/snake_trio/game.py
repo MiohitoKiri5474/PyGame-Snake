@@ -7,6 +7,7 @@ It translates keys, draws the board, and calls the four functions in logic.py.
 from __future__ import annotations
 
 import argparse
+import random
 from dataclasses import dataclass
 
 from .logic import Cell, Direction, advance_body, ate_food, hit_wall, next_head
@@ -22,11 +23,15 @@ HEADER_HEIGHT = 40
 
 def choose_food(body: list[Cell]) -> Cell:
     """Choose the first free cell deterministically for reproducible play."""
-    for y in range(0, HEIGHT, CELL):
-        for x in range(0, WIDTH, CELL):
-            if (x, y) not in body:
-                return (x, y)
-    raise RuntimeError("board is full")
+    if len(body) >= (WIDTH // CELL) * (HEIGHT // CELL):
+        raise RuntimeError("board is full")
+
+    x = random.randint(0, WIDTH // CELL - 1) * CELL
+    y = random.randint(0, HEIGHT // CELL - 1) * CELL
+    while (x, y) in body:
+        x = random.randint(0, WIDTH // CELL - 1) * CELL
+        y = random.randint(0, HEIGHT // CELL - 1) * CELL
+    return (x, y)
 
 
 @dataclass
@@ -127,15 +132,13 @@ def run_game() -> int:
         for index, (x, y) in enumerate(state.body):
             color = (39, 118, 91) if index == 0 else (94, 153, 93)
             pygame.draw.rect(
-                screen,
-                color,
-                (x + 1, HEADER_HEIGHT + y + 1, CELL - 2, CELL - 2),
-                border_radius=5,
+                screen, color, (x + 1, y + 1, CELL - 2, CELL - 2), border_radius=5
             )
         fx, fy = state.food
         pygame.draw.circle(
             screen, (220, 92, 72), (fx + CELL // 2, fy + CELL // 2), CELL // 2 - 2
         )
+
         if state.game_over:
             over_text = "Game over - press R to restart"
             screen.blit(

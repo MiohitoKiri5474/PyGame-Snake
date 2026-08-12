@@ -47,7 +47,10 @@ def hit_wall(
     # TODO 3: check left, right, top, and bottom boundaries.
 
     return (
-        head[0] < 0 or head[0] >= width or head[1] < header_height or head[1] >= height
+        head[0] < 0
+        or head[0] >= width
+        or head[1] < header_height
+        or head[1] >= height + header_height
     )
 
     # raise NotImplementedError("TODO 3: check four wall boundaries")
@@ -66,6 +69,8 @@ def advance_body(body: list[Cell], new_head: Cell, grow: bool) -> list[Cell]:
     else:
         # 如果只是正常移動，就把新頭放在最前面，後面接上「扣除最後一節」的原身體
         return [new_head] + body[:-1]
+
+
 def shrink_body(body: list[Cell], new_head: Cell) -> list[Cell]:
     """回傳縮短後的蛇身。"""
     # 如果蛇身原本只有 1 或 2 格，縮短後就只剩下一顆頭

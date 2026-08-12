@@ -26,7 +26,7 @@ CELL = 20
 START_BODY: list[Cell] = [(200, 200), (180, 200), (160, 200)]
 START_DIRECTION: Direction = (1, 0)
 HEADER_HEIGHT = 40
-SPEED = [1, 1.2, 1.4, 1.5]
+SPEED = [1, 1.05, 1.1, 1.2]
 LEVEL_BACKGROUNDS = [
     (255, 253, 249),  # Level 1: Original
     (170, 215, 255),  # Level 2: Ocean

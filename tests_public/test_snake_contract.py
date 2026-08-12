@@ -18,12 +18,12 @@ def test_ate_food_uses_exact_cell_equality() -> None:
 
 
 def test_hit_wall_checks_all_four_edges() -> None:
-    assert hit_wall((0, 0), 640, 480, 20) is False
-    assert hit_wall((620, 460), 640, 480, 20) is False
-    assert hit_wall((-20, 0), 640, 480, 20) is True
-    assert hit_wall((640, 0), 640, 480, 20) is True
-    assert hit_wall((0, -20), 640, 480, 20) is True
-    assert hit_wall((0, 480), 640, 480, 20) is True
+    assert hit_wall((0, 0), 640, 480, 20, 0) is False
+    assert hit_wall((620, 460), 640, 480, 20, 0) is False
+    assert hit_wall((-20, 0), 640, 480, 20, 0) is True
+    assert hit_wall((640, 0), 640, 480, 20, 0) is True
+    assert hit_wall((0, -20), 640, 480, 20, 0) is True
+    assert hit_wall((0, 480), 640, 480, 20, 0) is True
 
 
 def test_advance_body_returns_a_new_list_and_obeys_growth() -> None:

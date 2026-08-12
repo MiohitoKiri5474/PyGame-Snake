@@ -35,7 +35,9 @@ def ate_food(head: Cell, food: Cell) -> bool:
     return head[0] == food[0] and head[1] == food[1]
 
 
-def hit_wall(head: Cell, width: int, height: int, cell_size: int) -> bool:
+def hit_wall(
+    head: Cell, width: int, height: int, cell_size: int, header_height: int
+) -> bool:
     """Return True when any part of the head is outside the board.
 
     Legal x values begin at 0 and stop before ``width``.
@@ -44,11 +46,14 @@ def hit_wall(head: Cell, width: int, height: int, cell_size: int) -> bool:
     """
     # TODO 3: check left, right, top, and bottom boundaries.
 
+    return (
+        head[0] < 0
+        or head[0] >= width
+        or head[1] < header_height
+        or head[1] >= height + header_height
+    )
 
-    return (head[0] < 0 or head[0] >= width or head[1] < 0 or head[1] >= height)
-
-    
-    #raise NotImplementedError("TODO 3: check four wall boundaries")
+    # raise NotImplementedError("TODO 3: check four wall boundaries")
 
 
 def advance_body(body: list[Cell], new_head: Cell, grow: bool) -> list[Cell]:
@@ -64,3 +69,12 @@ def advance_body(body: list[Cell], new_head: Cell, grow: bool) -> list[Cell]:
     else:
         # 如果只是正常移動，就把新頭放在最前面，後面接上「扣除最後一節」的原身體
         return [new_head] + body[:-1]
+
+
+def shrink_body(body: list[Cell], new_head: Cell) -> list[Cell]:
+    """回傳縮短後的蛇身。"""
+    # 如果蛇身原本只有 1 或 2 格，縮短後就只剩下一顆頭
+    if len(body) <= 2:
+        return [new_head]
+    # 正常移動是去掉 1 節尾巴 ([:-1])，縮短則是去掉 2 節尾巴 ([:-2])
+    return [new_head] + body[:-2]

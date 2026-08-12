@@ -17,6 +17,7 @@ CELL = 20
 STEP_MS = 130
 START_BODY: list[Cell] = [(200, 200), (180, 200), (160, 200)]
 START_DIRECTION: Direction = (1, 0)
+HEADER_HEIGHT = 40
 
 
 def choose_food(body: list[Cell]) -> Cell:
@@ -34,6 +35,7 @@ class GameState:
     direction: Direction
     food: Cell
     score: int = 0
+    level: int = 1
     game_over: bool = False
 
 
@@ -64,7 +66,7 @@ def run_game() -> int:
         return 2
 
     pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    screen = pygame.display.set_mode((WIDTH, HEIGHT + HEADER_HEIGHT))
     pygame.display.set_caption("NCKU Snake Trio Studio")
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 32)
@@ -73,10 +75,14 @@ def run_game() -> int:
     running = True
 
     key_directions = {
-        pygame.K_LEFT: (-1, 0), pygame.K_a: (-1, 0),
-        pygame.K_RIGHT: (1, 0), pygame.K_d: (1, 0),
-        pygame.K_UP: (0, -1), pygame.K_w: (0, -1),
-        pygame.K_DOWN: (0, 1), pygame.K_s: (0, 1),
+        pygame.K_LEFT: (-1, 0),
+        pygame.K_a: (-1, 0),
+        pygame.K_RIGHT: (1, 0),
+        pygame.K_d: (1, 0),
+        pygame.K_UP: (0, -1),
+        pygame.K_w: (0, -1),
+        pygame.K_DOWN: (0, 1),
+        pygame.K_s: (0, 1),
     }
 
     while running:
@@ -98,19 +104,44 @@ def run_game() -> int:
             next_step += STEP_MS
 
         screen.fill((255, 253, 249))
+
+        # --- Header block: score + level ---
+        pygame.draw.rect(screen, (235, 230, 221), (0, 0, WIDTH, HEADER_HEIGHT))
+        pygame.draw.line(
+            screen, (226, 218, 207), (0, HEADER_HEIGHT), (WIDTH, HEADER_HEIGHT)
+        )
+        header_text = f"Score {state.score} | Level {state.level}"
+
+        # --- Game field (shifted down by HEADER_HEIGHT) ---
         for x in range(0, WIDTH, CELL):
-            pygame.draw.line(screen, (226, 218, 207), (x, 0), (x, HEIGHT))
+            pygame.draw.line(
+                screen, (226, 218, 207), (x, HEADER_HEIGHT), (x, HEADER_HEIGHT + HEIGHT)
+            )
         for y in range(0, HEIGHT, CELL):
-            pygame.draw.line(screen, (226, 218, 207), (0, y), (WIDTH, y))
+            pygame.draw.line(
+                screen,
+                (226, 218, 207),
+                (0, HEADER_HEIGHT + y),
+                (WIDTH, HEADER_HEIGHT + y),
+            )
         for index, (x, y) in enumerate(state.body):
             color = (39, 118, 91) if index == 0 else (94, 153, 93)
-            pygame.draw.rect(screen, color, (x + 1, y + 1, CELL - 2, CELL - 2), border_radius=5)
+            pygame.draw.rect(
+                screen,
+                color,
+                (x + 1, HEADER_HEIGHT + y + 1, CELL - 2, CELL - 2),
+                border_radius=5,
+            )
         fx, fy = state.food
-        pygame.draw.circle(screen, (220, 92, 72), (fx + CELL // 2, fy + CELL // 2), CELL // 2 - 2)
-        message = f"Score {state.score}"
+        pygame.draw.circle(
+            screen, (220, 92, 72), (fx + CELL // 2, fy + CELL // 2), CELL // 2 - 2
+        )
         if state.game_over:
-            message += "  |  Game over - press R to restart"
-        screen.blit(font.render(message, True, (66, 10, 21)), (12, 10))
+            over_text = "Game over - press R to restart"
+            screen.blit(
+                font.render(over_text, True, (66, 10, 21)),
+                (12, HEADER_HEIGHT + 10),
+            )
         pygame.display.flip()
         clock.tick(60)
 
@@ -120,7 +151,9 @@ def run_game() -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--check", action="store_true", help="run one deterministic logic step")
+    parser.add_argument(
+        "--check", action="store_true", help="run one deterministic logic step"
+    )
     args = parser.parse_args(argv)
     if args.check:
         state = new_game()

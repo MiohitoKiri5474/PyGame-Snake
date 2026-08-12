@@ -35,7 +35,9 @@ def ate_food(head: Cell, food: Cell) -> bool:
     return head[0] == food[0] and head[1] == food[1]
 
 
-def hit_wall(head: Cell, width: int, height: int, cell_size: int) -> bool:
+def hit_wall(
+    head: Cell, width: int, height: int, cell_size: int, header_height: int
+) -> bool:
     """Return True when any part of the head is outside the board.
 
     Legal x values begin at 0 and stop before ``width``.
@@ -44,11 +46,11 @@ def hit_wall(head: Cell, width: int, height: int, cell_size: int) -> bool:
     """
     # TODO 3: check left, right, top, and bottom boundaries.
 
+    return (
+        head[0] < 0 or head[0] >= width or head[1] < header_height or head[1] >= height
+    )
 
-    return (head[0] < 0 or head[0] >= width or head[1] < 0 or head[1] >= height)
-
-    
-    #raise NotImplementedError("TODO 3: check four wall boundaries")
+    # raise NotImplementedError("TODO 3: check four wall boundaries")
 
 
 def advance_body(body: list[Cell], new_head: Cell, grow: bool) -> list[Cell]:

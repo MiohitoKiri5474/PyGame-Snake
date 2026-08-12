@@ -7,6 +7,7 @@ It translates keys, draws the board, and calls the four functions in logic.py.
 from __future__ import annotations
 
 import argparse
+import random
 from dataclasses import dataclass
 
 from .logic import Cell, Direction, advance_body, ate_food, hit_wall, next_head , shrink_body
@@ -14,18 +15,23 @@ from .logic import Cell, Direction, advance_body, ate_food, hit_wall, next_head 
 WIDTH = 640
 HEIGHT = 480
 CELL = 20
-STEP_MS = 130
 START_BODY: list[Cell] = [(200, 200), (180, 200), (160, 200)]
 START_DIRECTION: Direction = (1, 0)
+HEADER_HEIGHT = 40
+SPEED = [1, 1.2, 1.3, 1.4, 1.5]
 
 
 def choose_food(body: list[Cell]) -> Cell:
     """Choose the first free cell deterministically for reproducible play."""
-    for y in range(0, HEIGHT, CELL):
-        for x in range(0, WIDTH, CELL):
-            if (x, y) not in body:
-                return (x, y)
-    raise RuntimeError("board is full")
+    if len(body) >= (WIDTH // CELL) * (HEIGHT // CELL):
+        raise RuntimeError("board is full")
+
+    x = random.randint(0, WIDTH // CELL - 1) * CELL
+    y = random.randint(0, HEIGHT // CELL - 1) * CELL
+    while (x, y) in body:
+        x = random.randint(0, WIDTH // CELL - 1) * CELL
+        y = random.randint(0, HEIGHT // CELL - 1) * CELL
+    return (x, y)
 
 
 @dataclass
@@ -34,6 +40,7 @@ class GameState:
     direction: Direction
     food: Cell
     score: int = 0
+    level: int = 1
     game_over: bool = False
     bad_food: Cell | None = None
     bad_food_expire_time: int = 0
@@ -71,7 +78,7 @@ def step(state: GameState) -> None:
 
     # 5. 檢查碰撞 (撞牆或撞到自己)
     self_hit = new_head in next_body[1:]
-    if hit_wall(new_head, WIDTH, HEIGHT, CELL) or self_hit:
+    if hit_wall(new_head, WIDTH, HEIGHT, CELL, HEADER_HEIGHT) or self_hit:
         state.game_over = True
         return
         
@@ -82,6 +89,11 @@ def step(state: GameState) -> None:
     if grow:
         state.score += 1
         state.food = choose_food(state.body)
+
+    if state.score % 10 == 0 and state.score != 0:
+        state.level = min(state.level + 1, len(SPEED))
+
+
 def run_game() -> int:
     try:
         import pygame
@@ -90,19 +102,23 @@ def run_game() -> int:
         return 2
 
     pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    screen = pygame.display.set_mode((WIDTH, HEIGHT + HEADER_HEIGHT))
     pygame.display.set_caption("NCKU Snake Trio Studio")
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 32)
     state = new_game()
-    next_step = pygame.time.get_ticks() + STEP_MS
+    next_step = pygame.time.get_ticks() + 130 / SPEED[state.level - 1]
     running = True
 
     key_directions = {
-        pygame.K_LEFT: (-1, 0), pygame.K_a: (-1, 0),
-        pygame.K_RIGHT: (1, 0), pygame.K_d: (1, 0),
-        pygame.K_UP: (0, -1), pygame.K_w: (0, -1),
-        pygame.K_DOWN: (0, 1), pygame.K_s: (0, 1),
+        pygame.K_LEFT: (-1, 0),
+        pygame.K_a: (-1, 0),
+        pygame.K_RIGHT: (1, 0),
+        pygame.K_d: (1, 0),
+        pygame.K_UP: (0, -1),
+        pygame.K_w: (0, -1),
+        pygame.K_DOWN: (0, 1),
+        pygame.K_s: (0, 1),
     }
 
     while running:
@@ -112,7 +128,7 @@ def run_game() -> int:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     state = new_game()
-                    next_step = pygame.time.get_ticks() + STEP_MS
+                    next_step = pygame.time.get_ticks() + 130 / SPEED[state.level - 1]
                 elif event.key in key_directions and not state.game_over:
                     candidate = key_directions[event.key]
                     if candidate != (-state.direction[0], -state.direction[1]):
@@ -137,21 +153,46 @@ def run_game() -> int:
                     state.bad_food = None
         if not state.game_over and now >= next_step:
             step(state)
-            next_step += STEP_MS
+            next_step += 130 / SPEED[state.level - 1]
 
         screen.fill((255, 253, 249))
+
+        # --- Header block: score + level ---
+        pygame.draw.rect(screen, (235, 230, 221), (0, 0, WIDTH, HEADER_HEIGHT))
+        pygame.draw.line(
+            screen, (226, 218, 207), (0, HEADER_HEIGHT), (WIDTH, HEADER_HEIGHT)
+        )
+        header_text = f"Score {state.score} | Level {state.level}"
+        screen.blit(font.render(header_text, True, (66, 10, 21)), (12, 8))
+
+        # --- Game field (shifted down by HEADER_HEIGHT) ---
         for x in range(0, WIDTH, CELL):
-            pygame.draw.line(screen, (226, 218, 207), (x, 0), (x, HEIGHT))
+            pygame.draw.line(
+                screen, (226, 218, 207), (x, HEADER_HEIGHT), (x, HEADER_HEIGHT + HEIGHT)
+            )
         for y in range(0, HEIGHT, CELL):
-            pygame.draw.line(screen, (226, 218, 207), (0, y), (WIDTH, y))
+            pygame.draw.line(
+                screen,
+                (226, 218, 207),
+                (0, HEADER_HEIGHT + y),
+                (WIDTH, HEADER_HEIGHT + y),
+            )
         for index, (x, y) in enumerate(state.body):
             color = (39, 118, 91) if index == 0 else (94, 153, 93)
-            pygame.draw.rect(screen, color, (x + 1, y + 1, CELL - 2, CELL - 2), border_radius=5)
+            pygame.draw.rect(
+                screen, color, (x + 1, y + 1, CELL - 2, CELL - 2), border_radius=5
+            )
         fx, fy = state.food
-        pygame.draw.circle(screen, (220, 92, 72), (fx + CELL // 2, fy + CELL // 2), CELL // 2 - 2)
-        message = f"Score {state.score}"
+        pygame.draw.circle(
+            screen, (220, 92, 72), (fx + CELL // 2, fy + CELL // 2), CELL // 2 - 2
+        )
+
         if state.game_over:
-            message += "  |  Game over - press R to restart"
+            over_text = "Game over - press R to restart"
+            screen.blit(
+                font.render(over_text, True, (66, 10, 21)),
+                (12, HEADER_HEIGHT + 10),
+            )
         screen.blit(font.render(message, True, (66, 10, 21)), (12, 10))
         if state.bad_food:
             bx, by = state.bad_food
@@ -166,7 +207,9 @@ def run_game() -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--check", action="store_true", help="run one deterministic logic step")
+    parser.add_argument(
+        "--check", action="store_true", help="run one deterministic logic step"
+    )
     args = parser.parse_args(argv)
     if args.check:
         state = new_game()
